@@ -2,6 +2,7 @@ import zipfile
 import os
 import hashlib
 from os.path import exists
+from os.path import isfile
 
 
 # Function that read a file
@@ -73,19 +74,44 @@ def check_sha(fil):
 
 # Check if a directory exists
 def check_dir(dct):
-    direxist = os.path.exists(dct)
+    pathisfile = os.path.isfile(dct)
+    direxist = False
+    if not pathisfile:
+        try:
+            direxist = os.path.isdir(dct)
+        except NotADirectoryError:
+            print(dct + " is not a directory.\n")
+        except IOError:
+            print("There is an error with the directory " + dct + " path.\n")
+    else:
+        print("This is a file not a directory.\n")
     return direxist
 
+# Check if a directory is empty
+def check_dir_empty(path):
+    pathisfile = os.path.isfile(path)
+    pathexists = os.path.exists(path)
+
+    if pathexists and not pathisfile:
+        if not os.listdir(path):
+            return True
+        else:
+            return False
+    else:
+        print("The path is either for a file or not valid.\n")
 
 # Check if a file exists
 def check_file(path, fil):
     file_exists = False
-    pathfil = os.path.join(path, fil)
-    try:
-        file_exists = exists(pathfil)
-    except IOError:
-        print("There is an error with the path, permissions or the file " + pathfil + " doesn't exists.\n")
-
+    dir_exists = check_dir(path)
+    if dir_exists:
+        pathfil = os.path.join(path, fil)
+        try:
+            file_exists = exists(pathfil)
+        except IOError:
+            print("There is an error with the path, permissions or the file " + pathfil + " doesn't exists.\n")
+    else:
+        print(path + " is incorrect or doesn't exists.\n")
     return file_exists
 
 
