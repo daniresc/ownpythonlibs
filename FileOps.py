@@ -66,7 +66,7 @@ def check_sha(fil):
                 print("There is an error reading the file " + fil)
             if not data:
                 break
-            shaHash.update(data)
+            shahash.update(data)
 
     shahashed = shahash.hexdigest()
     return shahashed
@@ -79,13 +79,12 @@ def check_dir(dct):
     if not pathisfile:
         try:
             direxist = os.path.isdir(dct)
-        except NotADirectoryError:
-            print(dct + " is not a directory.\n")
         except IOError:
             print("There is an error with the directory " + dct + " path.\n")
     else:
         print("This is a file not a directory.\n")
     return direxist
+
 
 # Check if a directory is empty
 def check_dir_empty(path):
@@ -100,7 +99,8 @@ def check_dir_empty(path):
     else:
         print("The path is either for a file or not valid.\n")
 
-# Check if a file exists
+
+# Check if a file exists with full path
 def check_file(path, fil):
     file_exists = False
     dir_exists = check_dir(path)
@@ -161,3 +161,48 @@ def copy_data_win(srcdir, targetdir):
     print("Copying: " + cmd)
     print("Copying from " + srcdir + " to " + targetdir + ".\n")
     return cmd
+
+
+# Check if a directory is writable
+def directory_writable(dct):
+    filerand = random.randint(1111111111, 9999999999)
+    file = "test_" + str(filerand) + ".tst"
+    dct = dct + "\\" + file
+    f = ""
+    try:
+        f = open(cwd, 'w')
+        dctwritable = True
+    except IOError:
+        dctwritable = False
+    finally:
+        f.close()
+    os.remove(dct)
+    return dctwritable
+
+
+# Check if AWS CLI is installed
+def aws_cli_installed():
+    awsinstalled = os.system("aws --version")
+    if awsinstalled == 0:
+        return True
+    else:
+        return False
+
+
+# Function used for checking if the file is empty or not
+def check_empty_file(path):
+    return os.path.isfile(path) and os.path.getsize(path) > 0
+
+
+# File for reading from file an write to dictionary
+def file_to_dict(fil, dct):
+    with open(fil) as f:
+        for line in f:
+            if not line.startswith("#"):
+                hashcount = line.count('=')
+                if hashcount == 1:
+                    (k, v) = line.split('=')
+                    if not k.startswith("#"):
+                        dct[str(k)] = v.strip('\n')
+                else:
+                    print("Wrong configuration in " + line)
